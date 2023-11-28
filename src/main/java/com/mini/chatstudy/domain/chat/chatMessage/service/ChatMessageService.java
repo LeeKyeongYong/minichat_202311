@@ -26,6 +26,6 @@ public class ChatMessageService {
         return RsData.of("S-1", "%d번 메세지가 생성되었습니다.".formatted(chatMessage.getId()), chatMessage);
     }
     public List<ChatMessage> findByChatRoomIdAndIdAfter(long roomId,long fromId){
-        return chatMessageRepository.findbyChatRoomIdAndIdAfter(roomId,fromId);
+        return chatMessageRepository.findByChatRoomIdAndIdAfter(roomId, fromId);
     }
 }
