@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static lombok.AccessLevel.PROTECTED;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PROTECTED;
+
 @Getter
 @SuperBuilder
 @MappedSuperclass
 @NoArgsConstructor(access = PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @ToString
 @EqualsAndHashCode
-@EntityListeners(AuditingEntityListener.class)
-public class BaseEntity {
-
+public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @EqualsAndHashCode.Include
@@ -31,13 +31,12 @@ public class BaseEntity {
     @LastModifiedDate
     private LocalDateTime modifyDate;
 
-    @Transient // 아래의 필드가 DB필드가 되는것을 방지하기위함
+    @Transient // 아래 필드가 DB 필드가 되는 것을 막는다.
     @Builder.Default
-    private Map<String,Object> extra = new LinkedHashMap<>();
+    private Map<String, Object> extra = new LinkedHashMap<>();
 
-    public String etModelName(){
+    public String getModelName() {
         String simpleName = this.getClass().getSimpleName();
-        return Character.toLowerCase(simpleName.charAt(0))+simpleName.substring(1);
+        return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
     }
-
 }

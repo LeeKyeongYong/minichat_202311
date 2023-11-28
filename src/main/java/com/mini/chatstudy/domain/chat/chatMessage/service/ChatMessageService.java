@@ -13,11 +13,11 @@ import java.util.List;
 public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
 
-    public RsData<ChatMessage> write(long chatRoomId,String wirterName,String body){
+    public RsData<ChatMessage> write(long chatRoomId, String writerName, String body) {
         ChatMessage chatMessage = ChatMessage
                 .builder()
                 .chatRoomId(chatRoomId)
-                .writerName(wirterName)
+                .writerName(writerName)
                 .body(body)
                 .build();
 
@@ -25,7 +25,8 @@ public class ChatMessageService {
 
         return RsData.of("S-1", "%d번 메세지가 생성되었습니다.".formatted(chatMessage.getId()), chatMessage);
     }
-    public List<ChatMessage> findByChatRoomIdAndIdAfter(long roomId,long fromId){
+
+    public List<ChatMessage> findByChatRoomIdAndIdAfter(long roomId, long fromId) {
         return chatMessageRepository.findByChatRoomIdAndIdAfter(roomId, fromId);
     }
 }

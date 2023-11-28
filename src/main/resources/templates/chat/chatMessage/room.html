@@ -1,124 +1,127 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>궁금하면 500원의 채팅 샘플입니다.</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" type="text/javascript"></script>
-</head>
-<body>
-    <div class="chat">
-        <form class="chat__write-messge" onsumbit="chat__writeMessage(this); return false;">
-            <input type="text" placeholder="작성자" name="body">
-            <input type="text" placeholder="내용을 입력해주세요." name="body">
-            <input type="submit">
-        </form>
-        <div class="chat__message-box">
-            <ul class="chat__message-ul">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-            </ul>
-        </div>
+<div className="chat">
+    <form className="chat__write-message" onSubmit="Chat__writeMessage(this); return false;">
+        <input type="text" placeholder="작성자" name="writerName">
+        <input type="text" placeholder="내용을 입력해주세요." name="body">
+        <input type="submit" value="작성">
+    </form>
+
+    <div className="chat__message-box">
+        <ul className="chat__message-ul">
+
+        </ul>
     </div>
-    <script>
-        function fetchPost(url,data){
-            return fetch(url,{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json",
-                    "Accept":"application/json"
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
+</div>
+
+<script>
+    function fetchPost(url, data) {
+        return fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+    }
+
+    function fetchGet(url, data) {
+        let query = Object.keys(data)
+            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
+            .join('&');
+
+        if (query.length > 0) query = '?' + query;
+
+        return fetch(url + query, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        })
+            .then(response => response.json())
+    }
+</script>
+
+<script th:inline="javascript">
+    const roomId = /*[[${roomId}]]*/ 0;
+
+    // 채팅 메세지 작성 시작
+    function Chat__writeMessage(form) {
+        form.writerName.value = form.writerName.value.trim();
+
+        if (form.writerName.value.length == 0) {
+            alert("작성자를 입력해주세요.");
+            form.writerName.focus();
+
+            return;
         }
 
-        function fetchGet(url,data){
-            let query = Object.keys(data)
-                .map(k=>encodeURIComponent(k)+'='+encodeURIComponent(data[k]))
-                .join('&');
+        form.body.value = form.body.value.trim();
 
-            if(query.length > 0 ) query='?'+query;
-
-            return fetch(url+query,{
-                method:"GET",
-                headers:{
-                    "Content-Type":"application/json",
-                    "Accept":"application/json"
-                }
-            })
-                .then(response => response.json())
-        }
-    </script>
-    <script th:inline="javascript">
-        const roomId=/*[[${roomId}]]*/0;
-
-        //채팅 메세지 작성시작
-        function Chat_writeMessage(form){
-            form.writerName.value = form.writeName.value.trim();
-
-            if(form.writerName.value.length == 0){
-                alert("작성자를 입력해주세요.");
-                form.writerName.focus();
-                return;
-            }
-
-            form.body.value = form.body.value.trim();
-
-            if(form.body.value.length==0){
-                form.body.focus();
-                return;
-            }
-
-            stompClient.send(`/app/chat/room/${roomId}/message`,{},JSON.stringify({
-                writerName:form.writerName.value,
-                body: form.body.value
-            }));
-
-            form.body.value='';
+        if (form.body.value.length == 0) {
             form.body.focus();
+
+            return;
         }
 
-        //채팅 메세지 작성 종료
-        //메세지를 읽기 시작함.
-        //클라이언트가 현재 받은메세지 번호를 입력
-        // 메세지 요청시 필요한 부분을 가져오게 처리됨
+        stompClient.send(`/app/chat/room/${roomId}/message`, {}, JSON.stringify({
+            writerName: form.writerName.value,
+            body: form.body.value
+        }));
 
-        let Chat__lastLoadedId=0;
+        form.body.value = '';
+        form.body.focus();
+    }
 
-        function Chat__loadMore(){
-            fetchGet(`/chat/room/${roomId}/message/${Chat__lastLoadedId}`,{})
-                .then(body=>{
-                    Chat__drawMessage(body.data.message);
-                });
-        }
+    //채팅 메세지 작성 종료
+    //메세지를 읽기 시작함.
+    //클라이언트가 현재 받은메세지 번호를 입력
+    // 메세지 요청시 필요한 부분을 가져오게 처리됨
 
-        const Chat__elMessageUl=document.querySelector('.chat__message-ul');
+    let Chat__lastLoadedId = 0;
 
-        function Chat__drawMessage(messages){
-            Chat__lastLoadedId = messages.id;
-
-            Chat__elMessageUl
-                .insertAdjacentHTML(
-                    "afterBegin",
-                    `<li>${message.writerName}:${message.body}</li>`
-                );
-        }
-
-        Chat__loadMore();
-
-        const socket = new SockJS('/ws');
-        const stompClient = stomp.over(socket);
-
-        stompClient.connect({},function(frame){
-            console.log('Connected: '+frame);
-
-            stompClient.subscribe(`/topic/chat/room/${roomId}/messages`,function(data){
-                const jsonData = JSON.parse(data.body);
-                Chat__drawMessage(joinData.data.message);
+    function Chat__loadMore() {
+        fetchGet(`/chat/room/${roomId}/messages/${Chat__lastLoadedId}`, {})
+            .then(body => {
+                Chat__drawMessages(body.data.messages);
             });
-        });
+    }
 
-        //채팅 메세지 읽기 종료
-    </script>
-</body>
-</html>
+    const Chat__elMessageUl = document.querySelector('.chat__message-ul');
+
+    function Chat__drawMessages(messages) {
+        messages.forEach((message) => {
+            Chat__drawMessage(message);
+        });
+    }
+
+    function Chat__drawMessage(message) {
+        Chat__lastLoadedId = message.id;
+
+        Chat__elMessageUl
+            .insertAdjacentHTML(
+                "afterBegin",
+                `<li>${message.writerName} : ${message.body}</li>`
+            );
+    }
+
+    Chat__loadMore();
+
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+
+        stompClient.subscribe(`/topic/chat/room/${roomId}/messages`, function (data) {
+            const jsonData = JSON.parse(data.body);
+            Chat__drawMessage(jsonData.data.message);
+        });
+    });
+
+    // 채팅 메시지 종료
+</script>

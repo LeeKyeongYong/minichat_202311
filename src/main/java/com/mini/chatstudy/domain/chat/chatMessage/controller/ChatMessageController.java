@@ -27,42 +27,47 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/chat")
 @Validated
-public class ChatMessageController{
-
+public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
     @GetMapping("/room/{roomId}")
-    public String showRoom(final @PathVariable String roomId, final Model model){
+    public String showRoom(
+            final @PathVariable String roomId,
+            final Model model
+    ) {
+        model.addAttribute("roomId", roomId);
 
-        model.addAttribute("roomId",roomId);
         return "chat/chatMessage/room";
     }
 
-    public record WriteMessageRequestBody(@NotBlank String writerName,@NotBlank String body){
-
+    public record WriteMessageRequestBody(@NotBlank String writerName, @NotBlank String body) {
     }
 
     @Getter
-    public static class WriteMessageResponseBody{
+    public static class WriteMessageResponseBody {
         private final ChatMessageDto message;
 
-        public WriteMessageResponseBody(ChatMessage message){
-            this.message=new ChatMessageDto(message);
+        public WriteMessageResponseBody(ChatMessage message) {
+            this.message = new ChatMessageDto(message);
         }
     }
 
     @MessageMapping("/chat/room/{roomId}/message")
     @SendTo("/topic/chat/room/{roomId}/messages")
-    public RsData<WriteMessageResponseBody> writeMessage(@DestinationVariable final long roomId,
-                                                         @Valid @Payload final WriteMessageRequestBody  requestBody){
-        RsData<ChatMessage> writeRs = chatMessageService.write(roomId,requestBody.writerName,requestBody.body);
+    public RsData<WriteMessageResponseBody> writeMessage(
+            @DestinationVariable final long roomId,
+            @Valid @Payload final WriteMessageRequestBody requestBody
+    ) {
+        RsData<ChatMessage> writeRs = chatMessageService.write(roomId, requestBody.writerName, requestBody.body);
+
         return writeRs.newDataOf(new WriteMessageResponseBody(writeRs.getData()));
     }
 
     @Getter
-    public static class GetMessagesResponseBody{
+    public static class GetMessagesResponseBody {
         private final List<ChatMessageDto> messages;
-        public GetMessagesResponseBody(List<ChatMessage> messages){
+
+        public GetMessagesResponseBody(List<ChatMessage> messages) {
             this.messages = messages
                     .stream()
                     .map(ChatMessageDto::new)
@@ -72,8 +77,12 @@ public class ChatMessageController{
 
     @GetMapping("/room/{roomId}/messages/{fromId}")
     @ResponseBody
-    public RsData<GetMessagesResponseBody> getMessages(@PathVariable final long roomId,@PathVariable final long fromId){
+    public RsData<GetMessagesResponseBody> getMessages(
+            @PathVariable final long roomId,
+            @PathVariable final long fromId
+    ) {
         List<ChatMessage> messages = chatMessageService.findByChatRoomIdAndIdAfter(roomId, fromId);
-        return RsData.of("S-1","성공",new GetMessagesResponseBody(messages));
+
+        return RsData.of("S-1", "성공", new GetMessagesResponseBody(messages));
     }
 }
