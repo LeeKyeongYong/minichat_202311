@@ -19,12 +19,12 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor(access = PROTECTED)
 @ToString
 @EqualsAndHashCode
-@EntityListeners(AuditingEntityListener)
+@EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
 
     @Id
-    @GeneratedValue(strategy=IDENTITY)
-    @EqualsAndHashCode.Include;
+    @GeneratedValue(strategy = IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
     @CreatedDate
     private LocalDateTime createDate;

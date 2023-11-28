@@ -13,11 +13,11 @@ import java.util.List;
 public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
 
-    public RsData<ChatMessage>Write(long chatRoomId,String wirterName,String body){
+    public RsData<ChatMessage> write(long chatRoomId,String wirterName,String body){
         ChatMessage chatMessage = ChatMessage
                 .builder()
-                .chatRoomId()
-                .writerName()
+                .chatRoomId(chatRoomId)
+                .writerName(wirterName)
                 .body(body)
                 .build();
 
