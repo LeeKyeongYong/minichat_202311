@@ -3,6 +3,7 @@ package com.mini.chatstudy.domain.chat.chatMessage.dto;
 import com.mini.chatstudy.domain.chat.chatMessage.entity.ChatMessage;
 import lombok.Getter;
 
+
 @Getter
 public class ChatMessageDto {
     private long id;
@@ -17,3 +18,4 @@ public class ChatMessageDto {
         this.body = chatMessage.getBody();
     }
 }
+

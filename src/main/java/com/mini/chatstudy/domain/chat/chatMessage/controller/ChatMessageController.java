@@ -37,7 +37,7 @@ public class ChatMessageController {
     ) {
         model.addAttribute("roomId", roomId);
 
-        return "/chat/chatMessage/room";
+        return "chat/chatMessage/room";
     }
 
     public record WriteMessageRequestBody(@NotBlank String writerName, @NotBlank String body) {
