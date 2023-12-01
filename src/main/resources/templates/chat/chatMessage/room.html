@@ -1,15 +1,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-<div className="chat">
-    <form className="chat__write-message" onSubmit="Chat__writeMessage(this); return false;">
+<div class="chat">
+    <form class="chat__write-message" onsubmit="Chat__writeMessage(this); return false;">
         <input type="text" placeholder="작성자" name="writerName">
         <input type="text" placeholder="내용을 입력해주세요." name="body">
         <input type="submit" value="작성">
     </form>
 
-    <div className="chat__message-box">
-        <ul className="chat__message-ul">
+    <div class="chat__message-box">
+        <ul class="chat__message-ul">
 
         </ul>
     </div>
